@@ -102,46 +102,15 @@ def plot_arrow(x, y, yaw, length=1, width=2, fc="r", ec="k"):
             fc=fc, ec=ec, head_width=width, head_length=width)
         plt.plot(x, y)
 
-def speed_reduce_curvature(state,target_ind,ck,target_linearspeed,target_angularspeed):
-    
-    if math.tan(ck[target_ind])<=0.1: #curvature too low
-        target_linearspeed=target_linearspeed*1
-        target_angularspeed=target_linearspeed*1
-        a_linear = PIDControl(Kp_lin,target_linearspeed, state.v)
-        a_angular = PIDControl(Kp_ang,target_angularspeed, state.omega)
-
-    if math.tan(ck[target_ind])>=0.9: #curvature too high
-        target_linearspeed=target_linearspeed*0.4
-        target_angularspeed=target_linearspeed*20
-        a_linear = PIDControl(Kp_lin,target_linearspeed, state.v)
-        a_angular = PIDControl(Kp_ang,target_angularspeed, state.omega)
-
-    if math.tan(ck[target_ind])>0.1 and math.tan(ck[target_ind])<0.9:
-        curv = [math.tan(0.1), math.tan(0.9)]
-        curve_k = [0.95,0.5]
-        speed_k=np.interp(math.tan(ck[target_ind]), curv, curve_k) #interpolate curvature and angular speed inversly
-        target_linearspeed=target_linearspeed*speed_k
-        
-        curve_k = [1,20]
-        speed_k=np.interp(math.tan(ck[target_ind]), curv, curve_k)
-        target_angularspeed=target_linearspeed*speed_k
-        
-        a_linear = PIDControl(Kp_lin,target_linearspeed, state.v)
-        a_angular = PIDControl(Kp_ang,target_angularspeed, state.omega)
-
-    return state,a_linear,a_angular
-
 def PIDcontroller(state,cx,cy,cyaw,ck,target_ind,target_linearspeed,target_angularspeed):
-    target_ind = calc_target_index(state, cx, cy) + 5
-    #a_linear = PIDControl(Kp_lin,target_linearspeed, state.v)
-    state,a_linear,a_angular=speed_reduce_curvature(state,target_ind,ck,target_linearspeed,target_angularspeed)
-    a_angular=-a_angular
+    target_ind = calc_target_index(state, cx, cy) + 5 
+    a_angular = -PIDControl(Kp_ang,target_angularspeed, state.omega)
+    a_linear = PIDControl(Kp_lin,target_linearspeed, state.v)
     
     yaw_new=(np.rad2deg(pi_2_pi(state.yaw)))
     if yaw_new<0:
         yaw_new=yaw_new + 360
-
-    dy=-state.y+cy[target_ind]  #target succesor index, add +7
+    dy=-state.y+cy[target_ind] 
     dx=-state.x+cx[target_ind]
     theta = pi_2_pi(math.atan2(dy, dx))
     theta=np.rad2deg(theta)
@@ -153,16 +122,8 @@ def PIDcontroller(state,cx,cy,cyaw,ck,target_ind,target_linearspeed,target_angul
         error=error-360
     if error <-180:
         error =error +360
-
     #Kp_track tune wisely
     state.omega=PIDControl_track(Kp_track,error)
-    
-    #+ve omega anticlock  -ve omega clockwise
-    L=0.04
-    R=0.02
-    v_l = (2*state.v + state.omega*L)/2*R
-    v_r = (2*state.v - state.omega*L)/2*R
-    #print(v_r, v_l)
 
     return state,target_ind,a_linear,a_angular
 
@@ -191,7 +152,6 @@ def error_claculation(xx_d, yy_d, state, state_n):
     yawe = pi_2_pi(state.yaw - state_n.yaw)
 
     return xe, ye, yawe
-
 
 
 def main():
@@ -234,7 +194,6 @@ def main():
     state_2 = State(x= p * np.cos(np.deg2rad(120)), y=p * np.sin(np.deg2rad(120)), yaw=0, v=0.0,omega=0.0)
 
     state_3 = State(x= p * np.cos(np.deg2rad(240)), y=p * np.sin(np.deg2rad(240)), yaw=0, v=0.0,omega=0.0)
-
 
     cx1, cy1, cyaw1 = 1, 1, 5
     cx2, cy2, cyaw2 = 1, 1, 5
@@ -358,3 +317,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
