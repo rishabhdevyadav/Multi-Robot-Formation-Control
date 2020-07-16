@@ -191,11 +191,23 @@ def target_coordinate_new(state, px1, py1, px2, py2, px3, py3):
     yy_d3 = state.y + (px3 * np.sin(state.yaw)) + (py3 * np.cos(state.yaw))
     return xx_d1, yy_d1, xx_d2, yy_d2, xx_d3, yy_d3
 
+def getDistances(state_n1, state_n2):
+    d =  np.sqrt( np.square(state_n1.x - state_n2.x) + np.square(state_n1.y - state_n2.y) )
+    return d
+
+def getAngle(state_n1, state_n2, state_n3):
+    a = (state_n1.x, state_n1.y)
+    b = (state_n2.x, state_n2.y)
+    c = (state_n3.x, state_n3.y)
+    ang = math.degrees(math.atan2(c[1]-b[1], c[0]-b[0]) - math.atan2(a[1]-b[1], a[0]-b[0]))
+    return ang + 360 if ang < 0 else ang
+    #print(getAngle((5, 0), (0, 0), (0, 5)))
+
 
 def main():
 
     ax = [0,20,40,60,80,100]
-    ay = [0,0,10,20,20,15]
+    ay = [0,-2,10,20,20,0]
     goal = [ax[-1], ay[-1]]
 
     cx, cy, cyaw, ck_curv, s = cubic_spline_planner.calc_spline_course(ax, ay, ds=0.1)
@@ -214,8 +226,8 @@ def main():
     target_ind = calc_target_index(state, cx, cy)
 
     p = 4
-    px1, py1 = 4, 4 
-    px2, py2 = -4, 4
+    px1, py1 = 0, 0
+    px2, py2 = 0, 4
     px3, py3 = 0, -4
 
     xx_d1, yy_d1, xx_d2, yy_d2, xx_d3, yy_d3 = target_coordinate_new(state, px1, py1, px2, py2, px3, py3)
@@ -225,7 +237,7 @@ def main():
     state_3 = State(x= xx_d3, y=yy_d3, yaw=0, v=0.0,omega=0.0)
 
     target_angularspeed = 0
-    target_linearspeed = 120 / 3.6
+    target_linearspeed = 150 / 3.6
 
     prev_xx1, prev_yy1 = xx_d1, yy_d1
     prev_x_dot_d1, prev_y_dot_d1 = 0, 0
@@ -243,14 +255,14 @@ def main():
     cx2, cy2, cyaw2 = 1, 1, 5
     cx3, cy3, cyaw3 = 1, 1, 5
 
-    cx12, cy12, cyaw12 = 1,1,5
-    cx13, cy13, cyaw13 = 1,1,5
+    cx12, cy12, cyaw12 = 3,3,5
+    cx13, cy13, cyaw13 = 3,3,5
 
-    cx21, cy21, cyaw21 = 1,1,5
-    cx23, cy23, cyaw23 = 1,1,5
+    cx21, cy21, cyaw21 = 3,3,5
+    cx23, cy23, cyaw23 = 3,3,5
 
-    cx31, cy31, cyaw31 = 1,1,5
-    cx32, cy32, cyaw32 = 1,1,5
+    cx31, cy31, cyaw31 = 3,3,5
+    cx32, cy32, cyaw32 = 3,3,5
 
     while T >= time and lastIndex > target_ind + 10:
 
@@ -265,7 +277,6 @@ def main():
         prev_y_dot_d1 = y_dot_d1
         #print(v_d1*3.6, omega_d1*3.6)
 
-
         v_d2, omega_d2, xx_d2, yy_d2, x_dot_d2, y_dot_d2 = \
         desired_speed(xx_d2, yy_d2, prev_xx2, prev_yy2, prev_x_dot_d2, prev_y_dot_d2)
         prev_xx2 = xx_d2
@@ -273,7 +284,6 @@ def main():
         prev_x_dot_d2 = x_dot_d2
         prev_y_dot_d2 = y_dot_d2
         #print(v_d2*3.6, omega_d2*3.6)
-
 
         v_d3, omega_d3, xx_d3, yy_d3, x_dot_d3, y_dot_d3 = \
         desired_speed(xx_d3, yy_d3, prev_xx3, prev_yy3, prev_x_dot_d3, prev_y_dot_d3)
@@ -285,10 +295,8 @@ def main():
 
         xe1, ye1, yawe1 = error_claculation(xx_d1, yy_d1, state, state_1)
         #print(xe1, ye1, yawe1)
-
         xe2, ye2, yawe2 = error_claculation(xx_d2, yy_d2, state, state_2)
         #print(xe2, ye2, yawe2)
-
         xe3, ye3, yawe3 = error_claculation(xx_d3, yy_d3, state, state_3)
         #print(xe3, ye3, yawe3)
 
@@ -310,7 +318,7 @@ def main():
 
         # print(v_in1, omega_in1) 
         # print(v_in2, omega_in2)
-        # print(v_in3, omega_in3)    
+        # print(v_in3, omega_in3)
 
         state_1 = agent_state_update(state_1, v_in1, omega_in1)
         state_2 = agent_state_update(state_2, v_in2, omega_in2)
@@ -340,7 +348,7 @@ def main():
             
             plt.plot(cx, cy, "-r", label="course")
             plt.plot(x, y, "-b", label="trajectory")
-            plt.plot(cx[target_ind], cy[target_ind], "xg", label="target")
+            plt.plot(cx[target_ind], cy[target_ind], ".", label="target")
             plt.axis("equal")
             plt.grid(True)
             plt.title("Speed[km/h]:" + str(state.v * 3.6)[:4] + "  Angular Speed:" + str(state.omega)[:4])
