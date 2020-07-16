@@ -9,3 +9,5 @@ Few formation control methods for multi-robot system are:
 Virtaul Structure Approach has been used here. It is in intial stage, need to tune the parameters.
 
 ![Alt text](https://github.com/rishabhdevyadav/Multi-agent-Formation-Control/blob/master/Virtual_structure.gif)
+
+![Alt text](https://github.com/rishabhdevyadav/Multi-Robot-Formation-Control/blob/master/Virtual_structure2.gif)
