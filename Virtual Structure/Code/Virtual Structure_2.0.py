@@ -166,10 +166,8 @@ def error_claculation(xx_d, yy_d, state, state_n):
 
     xe = (xx_d - state_n.x)*np.cos(state_n.yaw) + \
                (yy_d - state_n.y)*np.sin(state_n.yaw)
-
     ye = -(xx_d - state_n.x)*np.sin(state_n.yaw) + \
                (yy_d - state_n.y)*np.cos(state_n.yaw)
-
     yawe = pi_2_pi(state.yaw - state_n.yaw)
 
     return xe, ye, yawe
@@ -181,7 +179,16 @@ def target_coordinate(state, p):
     yy_d2 = state.y + p * np.sin(pi_2_pi(state.yaw + np.deg2rad(120)))
     xx_d3 = state.x + p * np.cos(pi_2_pi(state.yaw + np.deg2rad(240)))
     yy_d3 = state.y + p * np.sin(pi_2_pi(state.yaw + np.deg2rad(240)))
+    return xx_d1, yy_d1, xx_d2, yy_d2, xx_d3, yy_d3
 
+def target_coordinate_new(state, px1, py1, px2, py2, px3, py3):
+    state.yaw = pi_2_pi(state.yaw)
+    xx_d1 = state.x + (px1 * np.cos(state.yaw)) - (py1 * np.sin(state.yaw))
+    yy_d1 = state.y + (px1 * np.sin(state.yaw)) + (py1 * np.cos(state.yaw))
+    xx_d2 = state.x + (px2 * np.cos(state.yaw)) - (py2 * np.sin(state.yaw))
+    yy_d2 = state.y + (px2 * np.sin(state.yaw)) + (py2 * np.cos(state.yaw))
+    xx_d3 = state.x + (px3 * np.cos(state.yaw)) - (py3 * np.sin(state.yaw))
+    yy_d3 = state.y + (px3 * np.sin(state.yaw)) + (py3 * np.cos(state.yaw))
     return xx_d1, yy_d1, xx_d2, yy_d2, xx_d3, yy_d3
 
 
@@ -206,16 +213,19 @@ def main():
     t = [0.0]
     target_ind = calc_target_index(state, cx, cy)
 
-    p = 5
+    p = 4
+    px1, py1 = 4, 4 
+    px2, py2 = -4, 4
+    px3, py3 = 0, -4
 
-    state_1 = State(x= p * np.cos(np.deg2rad(0)), y=p * np.sin(np.deg2rad(0)), yaw=0, v=0.0,omega=0.0)
-    state_2 = State(x= p * np.cos(np.deg2rad(120)), y=p * np.sin(np.deg2rad(120)), yaw=0, v=0.0,omega=0.0)
-    state_3 = State(x= p * np.cos(np.deg2rad(240)), y=p * np.sin(np.deg2rad(240)), yaw=0, v=0.0,omega=0.0)
+    xx_d1, yy_d1, xx_d2, yy_d2, xx_d3, yy_d3 = target_coordinate_new(state, px1, py1, px2, py2, px3, py3)
+
+    state_1 = State(x= xx_d1, y=yy_d1, yaw=0, v=0.0,omega=0.0)
+    state_2 = State(x= xx_d2, y=yy_d2, yaw=0, v=0.0,omega=0.0)
+    state_3 = State(x= xx_d3, y=yy_d3, yaw=0, v=0.0,omega=0.0)
 
     target_angularspeed = 0
     target_linearspeed = 120 / 3.6
-
-    xx_d1, yy_d1, xx_d2, yy_d2, xx_d3, yy_d3 = target_coordinate(state, p)
 
     prev_xx1, prev_yy1 = xx_d1, yy_d1
     prev_x_dot_d1, prev_y_dot_d1 = 0, 0
@@ -229,22 +239,22 @@ def main():
     prev_x_dot_d3, prev_y_dot_d3 = 0, 0
     #x_dot_d3, y_dot_d3 = 0, 0
 
-    cx1, cy1, cyaw1 = 5, 5, 30
-    cx2, cy2, cyaw2 = 5, 5, 30
-    cx3, cy3, cyaw3 = 5, 5, 30
+    cx1, cy1, cyaw1 = 1, 1, 5
+    cx2, cy2, cyaw2 = 1, 1, 5
+    cx3, cy3, cyaw3 = 1, 1, 5
 
-    cx12, cy12, cyaw12 = 5,5,30
-    cx13, cy13, cyaw13 = 5,5,30
+    cx12, cy12, cyaw12 = 1,1,5
+    cx13, cy13, cyaw13 = 1,1,5
 
-    cx21, cy21, cyaw21 = 5,5,30
-    cx23, cy23, cyaw23 = 5,5,30
+    cx21, cy21, cyaw21 = 1,1,5
+    cx23, cy23, cyaw23 = 1,1,5
 
-    cx31, cy31, cyaw31 = 5,5,30
-    cx32, cy32, cyaw32 = 5,5,30
+    cx31, cy31, cyaw31 = 1,1,5
+    cx32, cy32, cyaw32 = 1,1,5
 
     while T >= time and lastIndex > target_ind + 10:
 
-        xx_d1, yy_d1, xx_d2, yy_d2, xx_d3, yy_d3 = target_coordinate(state, p)
+        xx_d1, yy_d1, xx_d2, yy_d2, xx_d3, yy_d3 = target_coordinate_new(state, px1, py1, px2, py2, px3, py3)
         print("------")
 
         v_d1, omega_d1, xx_d1, yy_d1, x_dot_d1, y_dot_d1 = \
@@ -319,12 +329,12 @@ def main():
 
         if show_animation:  # pragma: no cover
             plt.cla()
-            #plot_arrow(state.x, state.y, state.yaw, fc="r")
+            # plot_arrow(state.x, state.y, state.yaw, fc="r")
             # plot_arrow(xx_d1, yy_d1, state.yaw,fc="c")
             # plot_arrow(xx_d2, yy_d2, state.yaw,fc="y")
             # plot_arrow(xx_d3, yy_d3, state.yaw,fc="g")
 
-            #plot_arrow(state_1.x, state_1.y, state_1.yaw,fc="c")
+            plot_arrow(state_1.x, state_1.y, state_1.yaw,fc="c")
             plot_arrow(state_2.x, state_2.y, state_2.yaw,fc="y")
             plot_arrow(state_3.x, state_3.y, state_3.yaw,fc="g")
             
@@ -344,3 +354,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
