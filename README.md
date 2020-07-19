@@ -10,4 +10,6 @@ Virtaul Structure Approach has been used here. It is in intial stage, need to tu
 
 ![Alt text](https://github.com/rishabhdevyadav/Multi-Robot-Formation-Control/blob/master/Virtual_structure_3.gif)
 
+![Alt text](https://github.com/rishabhdevyadav/Multi-Robot-Formation-Control/blob/master/chain_formation.gif)
+
 Note: Virtual_structure_2.0.py has some bugged fixed.
