@@ -132,13 +132,10 @@ def desired_speed(xx, yy, prev_xx, prev_yy, prev_x_dot_d, prev_y_dot_d):
     #print("yy, prev_yy = ", '%.2f'%yy, '%.2f'%prev_yy)
     x_dot_d = (xx - prev_xx)/dt
     y_dot_d = (yy - prev_yy)/dt
-    #print(x_dot_d, y_dot_d)
 
     v_d = np.sqrt(np.square(x_dot_d) + np.square(y_dot_d))
     #print(v_d)
-    
-    #print(x_dot_d)#, prev_x_dot_d)
-    #print(y_dot_d)#, prev_y_dot_d)
+ 
     x_dot_dot_d = (x_dot_d - prev_x_dot_d)/dt
     y_dot_dot_d = (y_dot_d - prev_y_dot_d)/dt
     #print(x_dot_dot_d, y_dot_dot_d)
@@ -157,8 +154,6 @@ def desired_speed(xx, yy, prev_xx, prev_yy, prev_x_dot_d, prev_y_dot_d):
     if omega_d < -4:
         omega_d = -4
         print(omega_d)
- 
-    #print("---------")
 
     return v_d, omega_d, xx, yy, x_dot_d, y_dot_d
 
@@ -227,8 +222,8 @@ def main():
 
     p = 4
     px1, py1 = 0, 0
-    px2, py2 = 0, 4
-    px3, py3 = 0, -4
+    px2, py2 = 0, 6
+    px3, py3 = 0, -6
 
     xx_d1, yy_d1, xx_d2, yy_d2, xx_d3, yy_d3 = target_coordinate_new(state, px1, py1, px2, py2, px3, py3)
 

@@ -69,8 +69,18 @@ def calc_target_index(state, cx, cy):
                 break
             distance_this_index = distance_next_index
         old_nearest_point_index = ind
+    L = 0.0
+    k = 0.03  # look forward gain
+    Lfc = 0.2  # look-ahead distance
+    Lf = k * state.v + Lfc
+    # search look ahead target point index
+    while Lf > L and (ind + 1) < len(cx):
+        dx = cx[ind] - state.x
+        dy = cy[ind] - state.y
+        L = math.sqrt(dx ** 2 + dy ** 2)
+        ind += 1
 
-    return ind + 15
+    return ind 
 
 def calc_distance(state, point_x, point_y):
     dx = state.x - point_x
@@ -172,7 +182,6 @@ def main():
     prev_xx4, prev_yy4 = state4.x, state4.y
 
     v_in1 = 50
-    
 
     while T >= time and lastIndex> target_ind1 + 10:
 
